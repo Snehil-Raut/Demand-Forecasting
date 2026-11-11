@@ -1,0 +1,8 @@
+.venv/
+*.csv
+data/
+.env
+*.parquet
+.ipynb_checkpoints/
+__pycache__/
+CLAUDE.md

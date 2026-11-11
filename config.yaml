@@ -1,0 +1,9 @@
+# Scope: what slice of M5 we use
+state: CA
+category: FOODS
+
+# Where data lives
+paths:
+  raw: data/raw
+  interim: data/interim
+  processed: data/processed
