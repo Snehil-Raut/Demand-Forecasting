@@ -28,10 +28,13 @@ def to_long(sales_scope):
     return long
 
 def add_calendar(long, calendar, cfg):
+    calendar = calendar.copy()
+    calendar['date'] = pd.to_datetime(calendar['date'])
     merged    = pd.merge(long, calendar, on='d', how='left')
     keep      = "snap_" + cfg["state"]
     drop_cols = [c for c in merged.columns if c.startswith("snap_") and c != keep]
     merged    = merged.drop(columns=drop_cols)
+    
     return merged
 
 def add_prices(merged, prices_scope):
@@ -43,9 +46,26 @@ def validate(df, cfg):
     n_series = df['id'].nunique()
     n_days   = df['d'].nunique()
     assert len(df) == n_series * n_days, "Row count mismatch!"
-    assert not ((df["sales"].isna()) | (df["sales"] < 0)).any(), ("Sales contain null or negative values!")
- 
+    assert not ((df['sales'].isna()) | (df['sales'] < 0)).any(), ("Sales contain null or negative values!")
+    days_expected = (df['date'].max() - df['date'].min()).days + 1
+    days_actual = df["date"].nunique()
+    assert days_actual  == days_expected, 'Missing dates found!'
+    assert list(df['state_id'].unique()) == [cfg['state']], "Wrong state found!"
+    assert list(df['cat_id'].unique()) == [cfg['category']], "Wrong category found!"
 
+    sold_rows  = df[df['sales'] > 0]
+    first_date = sold_rows.groupby('id')['date'].min()
+    launch = df['id'].map(first_date)
+    after  = df['date'] >= launch
+    assert not df.loc[after, "sell_price"].isna().any(), "Missing price after launch!"
+    print("All checks passed")
+
+def save(df, cfg):
+    out_dir = ROOT / cfg["paths"]["interim"]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "sales_long.parquet"
+    df.to_parquet(out_path, index=False)
+    print(f"Saved {len(df):,} rows to {out_path}")
 
 if __name__ == "__main__":
     cfg = load_config()
@@ -54,9 +74,6 @@ if __name__ == "__main__":
     long                      = to_long(sales_scope)
     merged                    = add_calendar(long, calendar, cfg)
     df                        = add_prices(merged, prices_scope)
-    validates                 = validate(df, cfg)        
-    print(sales.shape, calendar.shape, prices.shape)
-    print(sales_scope.shape, prices_scope.shape)
-    print(long.shape)
-    print(merged.shape)
-    print(df.shape)
+
+    validate(df, cfg)
+    save(df, cfg)
