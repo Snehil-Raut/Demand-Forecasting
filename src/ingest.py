@@ -53,6 +53,7 @@ def validate(df, cfg):
     assert list(df['state_id'].unique()) == [cfg['state']], "Wrong state found!"
     assert list(df['cat_id'].unique()) == [cfg['category']], "Wrong category found!"
 
+    # get when first sale happened of each product
     sold_rows  = df[df['sales'] > 0]
     first_date = sold_rows.groupby('id')['date'].min()
     launch = df['id'].map(first_date)
