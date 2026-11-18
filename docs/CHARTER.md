@@ -1,6 +1,6 @@
 # Project Charter — Walmart Demand Forecasting (M5)
 
-**Owner / decision-maker:** Ankita  
+**Owner / decision-maker:** Snehil Raut  
 **Status:** FINAL (v1)  
 **Last updated:** 2026-11-10
 
