@@ -50,7 +50,7 @@ and explain results.
 
 ## 7. Constraints
 - **Timeline:** 6–8 weeks part-time
-- **Team:** Ankita
+- **Team:** Snehil Raut
 - **AWS budget:** free tier, max ~$20/month
 - **Machine:** local Windows laptop for development
 
